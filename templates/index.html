@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}
+Toast: Party Assassin
+{% endblock title %}
+
+
+{% block content %}
+{% load static from staticfiles %}
+<div class="index-container">
+  <a href="{% url 'create_game' %}">CREATE GAME</a>
+  <span> - Or - </span>
+  <a href="{% url 'continue' %}">Continue game that you've already joined</a>
+  <p>To join a game someone else has started, make them give you the url (and then, you know, go to that url). Don't be  afraid to threaten them</p>
+  <br />
+  <br />
+  <div class='stats-container'>
+    <h6>As of the last time we purged the database:</h6>
+    <div class='stat'>
+      {{ loyalist_wins }} - loyalist wins
+    </div>
+    <div class='stat'>
+      {{ traitor_wins }} - traitor wins
+    </div>
+    <div class='stat'>
+      {{ no_wins }} - games ended without winning team
+    </div>
+    <div class='stat'>
+      {{ total_players }} - total players (real or imagined)
+    </div>
+</div>
+
+{% endblock content %}

@@ -1,0 +1,46 @@
+.game-detail-container {
+    @include span-columns(12);
+    @include omega;
+    background-color: $secondary-background;
+    .game-header {
+        background-color: $tertiary-highlight;
+        padding:20px;
+        .last-trade-container {
+            margin-top:5px;
+            margin-bottom:5px;
+            .last-trade {
+                border:1px solid black;
+                background-color: $attention-background;
+                padding:3px;
+            }
+        }
+
+    }
+    .game-body-container {
+        padding:20px;
+        .players-title {
+            margin-bottom:30px;
+        }
+        .player-list{
+            li {
+                margin-bottom:10px;
+                img.drink-icon {
+                    margin-left:10px;
+                    height:15px;
+                    width:15px;
+                }
+            }
+
+        }
+        .team-info-container {
+            margin-top:40px;
+            .team-box {
+                display:none;
+            }
+            .team-box-toggle.has-team {
+                background-color:red;
+            }
+        }
+    }
+
+}

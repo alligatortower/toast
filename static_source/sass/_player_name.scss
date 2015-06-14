@@ -1,0 +1,4 @@
+.player-name-container{
+    @include span-columns(12);
+    padding: 20px;
+}

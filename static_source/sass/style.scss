@@ -1,0 +1,34 @@
+/* uncomment for bourbon and neat */
+/* http://bourbon.io/docs/ */
+@import 'bourbon/bourbon';
+/* bitters (base) must go before neat */
+@import 'base/base';
+/* http://neat.bourbon.io/docs/ */
+@import 'neat/neat';
+
+
+@import "variables";
+@import "buttons";
+@import "forms";
+@import "header";
+@import "footer";
+@import 'game-detail';
+@import 'messages';
+@import 'index';
+@import 'player_name';
+@import 'rules';
+
+
+/* comment to turn off grid */
+$visual-grid: true;
+
+
+body {
+    @include outer-container;
+    background-color: $background;
+    color: $main-text;
+}
+a {
+    color: $secondary-highlight;
+
+}

@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}
+Toast: Party Assassin
+{% endblock title %}
+
+
+{% block content %}
+{% load static from staticfiles %}
+<div class='game-detail-container'>
+  {% if not game.gamestate == 'ended' %}
+    {% if you.alive %}
+      <div class='game-header'>
+        <h5>Currently in game #{{ game.pk }}</h5>
+        <h6>Gamestate: {{ game.gamestate }}</h6>
+        {% if you.last_trade %}
+          <div class='last-trade-container'>
+            <span class='last-trade'>last traded drinks with: {{ you.last_trade }}</span>
+          </div>
+        {% endif %}
+        {% if you.game_owner and game.gamestate == 'unstarted' %}<a href='{% url 'start_game' game.pk %}'>Start Game</a>{% endif %}
+        {% if you.team == 'ambassador' and game.gamestate == 'trading' %}<a href='{% url 'propose_toast' game.pk %}'>Propose Toast</a><br />{% endif %}
+        {% if game.gamestate == 'trading' %}<a href='{% url 'poison_drink' game.pk %}'>Poison your drink</a>{% endif %}
+      </div>
+      <div class="game-body-container">
+        <h4 class='players-title'>Players</h4>
+        <ul class='player-list'>
+          {% for player in game.player_set.all %}
+            <li>
+              {% if not player.alive %}<strike>{% endif %}
+              {% if player.pk == you.pk %}<strong>{% endif %}
+              {% if player.team == 'ambassador' %}[A] - {% endif %}
+              {% if player.server %}[S] - {% endif %}
+              {{ player }}
+              {% if player.pk == you.pk %}</strong>{% endif %}
+              {% if not player.alive %}</strike>{% endif %}
+              {% if player.drink_set.all %}<img class='drink-icon' src='{% static 'img/drink.png' %}' />{% endif %}
+              {% if player.alive %}
+                {% if you.team == 'ambassador' and game.gamestate == 'choosing' and you.pk != player.pk %}
+                <a href='{% url 'choose_server' game.pk player.pk %}'>Choose as server</a>
+                {% endif %}
+                {% if you.server and game.gamestate == 'serving' and not player.drink_set.all %}
+                <a href='{% url 'serve_drink' game.pk player.pk %}'>Serve regular drink</a> - 
+                <a href='{% url 'serve_drink' game.pk player.pk %}?poison=true'>Serve poison drink</a>
+                {% endif %}
+                {% if player in you.wants_to_trade_with_me.all %}
+                - wants to trade - 
+                {% endif %}
+                {% if you in player.wants_to_trade_with_me.all %}
+                - You have offered to trade - 
+                {% endif %}
+                {% if game.gamestate == 'trading' and player != you and you not in player.wants_to_trade_with_me.all %}
+                <a href='{% url 'offer_trade' game.pk player.pk %}'>Offer to trade</a>
+                {% endif %}
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+        <div class="team-info-container">
+          <button class="team-box-toggle {% if you.team != 'unassigned' %}has-team{% endif %}">Show / Hide team name</button>
+          <div class="team-box">
+            {{ you.team.title }}
+          </div>
+        </div>
+      {% else %}
+        <h2>  You are dead, sorry mate, no table talking until the game is over </h2>
+      {% endif %}
+    {% else %}
+      Winning team:
+      {% if game.winners %}
+        {{ game.winners.title }}
+      {% else %}
+        The game ended without winners
+      {% endif %}
+    {% endif %}
+  </div>
+</div>
+{% endblock content %}
+{% block body_media %}
+<script>
+  window.onload = function() {
+    setTimeout(function(){
+       window.location.reload(1);
+     }, 10000);
+
+    $('.team-box-toggle').click(function() {
+        $('.team-box').toggle()
+    });
+  };
+</script>
+{% endblock body_media %}

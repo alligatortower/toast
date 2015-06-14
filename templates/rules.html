@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}
+Toast: Party Assassin
+{% endblock title %}
+
+{% block content %}
+<div class="rules-container">
+  <h1>What this?</h1>
+  This is a prototype companion webapp for a fancy new party game <strong>Toast: Party Assassin</strong> (working title). It's based off of games like werewolf. It's meant to be played in a room with other people irl probably with actual drinks alongside the app.
+  <h1>Set Up</h1>
+  <p>Each player is assigned a role secretly. In each game there is always one ambassador and an equal number of loyalists and traitors.</p>
+  <p>If there is an unequal number of people available to be loyalists and traitors, the extra person is a loyalist.</p>
+
+  <h1>Game Start</h1>
+  <p>The ambassador is known by everyone and can be identified by the [A] before their name. After some discussion the ambassador chooses another player to serve the party drinks.</p>
+  <p>The server can be identified by an [S] before their name. This person serves drinks to all the party members, including himself.</a>
+  <p>Once everyone has their drinks, players may now begin to trade drinks with one another. Both parties must agree to the trade unless the ambassador wants to trade with you. No one can deny the ambassador a trade.</p>
+  <p>When the ambassador thinks it's appropriate, they propose a toast. Once a toast is proposed, all drink trading stops and every player takes a drink.</p>
+  <p>The ambassador then chooses a new server who serves everyone drinks, and on and on...</p>
+  <p><strong>However</strong></p>
+  <p>Each traitor may poison one drink that they are holding per round of drinks. This includes the drinks they serve to other players if they are chosen as a server</p>
+  <p>Any player who drinks a poisoned drink dies and is removed from the game</p>
+
+  <h1>Winning</h1>
+  <p><strong>Loyalists</strong> (including the ambassador) win when all of the traitors are dead, OR if two rounds pass without anyone being poisoned (currently unimplemented, so police that yourselves).</p>
+  <p><strong>Traitors</strong> win if they kill the ambassador</p>
+
+  <h1>Credits</h1>
+  Game design: Trevor Moorman <br />
+  Website: Chris Weed <br />
+  Being a baby: Milo Moorman
+</div>
+
+
+
+
+{% endblock content %}
