@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}
+Toast: Party Assassin
+{% endblock title %}
+{% block content %}
+<h1>Game #{{ game.pk }} has ended</h1>
+<p>
+{% if game.winners %}
+ <strong>{{ game.winners }}</strong> Have won!
+{% else %}
+ The game was ended manually, before there was a winning team
+{% endif %}
+</p>
+<h3>The players were: </h3>
+<ul>
+  {% for player in game.player_set.all %}
+  <li>
+    {% if not player.alive %}<strike>{% endif %}
+    {% if player.pk == you.pk %}<strong>{% endif %}
+      {{ player }} - {{player.team.title}}
+    {% if player.pk == you.pk %}</strong>{% endif %}
+    {% if not player.alive %}</strike>{% endif %}
+  </li>
+  {% endfor %}
+</ul>
+{% endblock content %}

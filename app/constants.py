@@ -1,4 +1,5 @@
 from model_utils import Choices
+from django.templatetags.static import static
 from django.utils.translation import ugettext_lazy as _
 
 TEAMS_THAT_WIN = Choices(
@@ -18,4 +19,18 @@ GAMESTATE_CHOICES = Choices(
     ('serving', 'SERVING', _('Waiting for server to serve drinks')),
     ('trading', 'TRADING', _('Waiting for Ambassador to propose toast')),
     ('ended', 'ENDED', _('Ended')),
+)
+DRINK_ICON_CHOICES = Choices(
+    (static('img/drink-icons/beer-bottle.png'), 'DEFAULT', _('Beer Bottle')),
+    (static('img/drink-icons/can.png'), _('Beer Can')),
+    (static('img/drink-icons/champagne.png'), _('Champagne')),
+    (static('img/drink-icons/cocktail.png'), _('Cocktail')),
+    (static('img/drink-icons/coffee.png'), _('Coffee')),
+    (static('img/drink-icons/milk.png'), _('Milk')),
+    (static('img/drink-icons/on-rocks.png'), _('On the Rocks')),
+    (static('img/drink-icons/orange-slice.png'), _('Old Fashioned')),
+    (static('img/drink-icons/pint.png'), _('Pint')),
+    (static('img/drink-icons/tropical.png'), _('Tropical')),
+    (static('img/drink-icons/wedge-on-rim.png'), _('With a wedge')),
+    (static('img/drink-icons/wine.png'), _('Wine')),
 )

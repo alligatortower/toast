@@ -1,7 +1,7 @@
 <header>
   <nav>
     <a href="{% url 'index' %}">Home</a> - <a href="{% url 'rules' %}">Rules</a>
-    {% if game %}
+    {% if game and you %}
     <span> - </span><a href="{% url 'player_name' game.pk %}">Change name</a>
     {% endif %}
   </nav>

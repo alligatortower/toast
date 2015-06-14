@@ -32,7 +32,7 @@ PIPELINE_JS = {
         'source_filenames': (
             'js/*.js',
             'js/*.coffee',
-            ),
+        ),
         'output_filename': 'js/app.js',
         'manifest': True,
     },
@@ -42,7 +42,7 @@ PIPELINE_JS = {
             'js/vendor/jquery-1.11.0.min.js',
             'js/djangojs/django.js',
             'js/vendor/select2.min.js',
-            ),
+        ),
         'output_filename': 'js/vendor.js',
         'manifest': True,
     }

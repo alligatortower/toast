@@ -4,7 +4,7 @@ from django.db import models
 
 from model_utils.models import TimeStampedModel
 
-from .constants import TEAMS_THAT_WIN, TEAM_CHOICES, GAMESTATE_CHOICES
+from .constants import TEAMS_THAT_WIN, TEAM_CHOICES, GAMESTATE_CHOICES, DRINK_ICON_CHOICES
 
 
 class Game(TimeStampedModel):
@@ -51,7 +51,7 @@ class Game(TimeStampedModel):
         self.save()
 
 
-class Player(models.Model):
+class Player(TimeStampedModel):
     game = models.ForeignKey('Game')
     team = models.CharField(max_length=20, choices=TEAM_CHOICES, default=TEAM_CHOICES.UNASSIGNED)
     wants_to_trade = models.ManyToManyField('self', symmetrical=False, blank=True, null=True, related_name='wants_to_trade_with_me')
@@ -63,6 +63,9 @@ class Player(models.Model):
     game_owner = models.BooleanField(default=False)
     last_trade = models.CharField(max_length=200, blank=True, null=True)
 
+    class Meta:
+        ordering = ('created',)
+
     def __str__(self):
         return self.name if self.name else str(self.pk)
 
@@ -72,6 +75,10 @@ class Player(models.Model):
 
     def make_server(self):
         self.server = True
+        self.save()
+
+    def no_longer_server(self):
+        self.server = False
         self.save()
 
     def renew_poison(self):
@@ -86,9 +93,10 @@ class Player(models.Model):
 
     def poison_drink(self):
         drink = self.drink_set.all()[0]
-        if self.has_poison and self.team == TEAM_CHOICES.TRAITOR:
-            drink.poisoned = True
-            drink.save()
+        drink.poisoned = True
+        drink.save()
+        self.has_poison = False
+        self.save()
 
     def drink(self):
         drink = self.drink_set.all()[0]
@@ -100,3 +108,4 @@ class Player(models.Model):
 class Drink(models.Model):
     owner = models.ForeignKey('Player')
     poisoned = models.BooleanField(default=False)
+    icon = models.CharField(max_length=200, choices=DRINK_ICON_CHOICES, default=DRINK_ICON_CHOICES.DEFAULT)

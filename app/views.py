@@ -3,7 +3,7 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
 
-from .forms import PlayerNameForm
+from .forms import PlayerNameForm, ServeDrinkForm
 from .models import Game, Player, Drink
 from .constants import TEAM_CHOICES, GAMESTATE_CHOICES
 
@@ -32,7 +32,6 @@ def continue_game_view(request):
 
 def create_game_view(request):
     game = Game.objects.create()
-    request.session['game_pk'] = game.pk
     session_key = request.session.session_key
     Player.objects.create(game=game, session_key=session_key, game_owner=True)
     return redirect('player_name', pk=game.pk)
@@ -40,7 +39,7 @@ def create_game_view(request):
 
 def start_game_view(request, pk):
     game = get_object_or_404(Game, pk=pk)
-    if len(game.player_set.all()) < 3:
+    if len(game.player_set.all()) < 2:
         raise Http404(_('You need at least 3 players'))
     session_key = request.session.session_key
     if not session_key:
@@ -61,7 +60,7 @@ def end_game_view(request, pk):
 def game_detail_view(request, pk):
     game = get_object_or_404(Game, pk=pk)
     if game.gamestate == GAMESTATE_CHOICES.ENDED:
-        return render(request, 'game-detail.html', {'you': None, 'game': game})
+        return render(request, 'game-over.html', {'you': None, 'game': game})
     session_key = request.session.session_key
     if not session_key:
         raise Http404(_('You need to enable cookies (or refresh, sometimes that works)'))
@@ -71,7 +70,12 @@ def game_detail_view(request, pk):
             raise Http404(_('This game has already started, join the next one'))
         player = Player.objects.create(game=game, session_key=session_key)
         return redirect('player_name', game.pk)
-    return render(request, 'game-detail.html', {'you': player, 'game': game})
+    if not player.alive:
+        return render(request, 'dead.html', {'you': None, 'game': game})
+    successfully_poisoned = request.session.get('successfully_poisoned', False)
+    if successfully_poisoned:
+        request.session['successfully_poisoned'] = False
+    return render(request, 'game-detail.html', {'you': player, 'game': game, 'successfully_poisoned': successfully_poisoned})
 
 
 def player_name_view(request, pk):
@@ -120,21 +124,26 @@ def serve_drink_view(request, game_pk, recipient_pk):
         raise Http404(_('You cannot serve a dead person'))
     if recipient.drink_set.all():
         raise Http404(_('This person already has a drink'))
-    poison = bool(request.GET.get('poison', False))
-    if poison and (not player.team == TEAM_CHOICES.TRAITOR or not player.has_poison):
-        raise Http404(_('You either are not a traitor or do not have poison to use'))
-    Drink.objects.create(poisoned=poison, owner=recipient)
-    if poison:
-        player.has_poison = False
-        player.save()
-    still_need_drinks = False
-    for player in game.player_set.all():
-        if not player.drink_set.all():
-            still_need_drinks = True
-    if not still_need_drinks:
-        game.change_gamestate(GAMESTATE_CHOICES.TRADING)
-        player.server = False
-        player.save()
+    if request.method == 'GET':
+        form = ServeDrinkForm()
+        return render(request, 'serve-drink.html', {'form': form, 'recipient': recipient, 'game_pk': game.pk})
+    elif request.method == 'POST':
+        form = ServeDrinkForm(request.POST)
+        if form.is_valid():
+            poison = form.cleaned_data['poisoned']
+            if poison and (not player.team == TEAM_CHOICES.TRAITOR or not player.has_poison):
+                raise Http404(_('You either are not a traitor or do not have poison to use'))
+            Drink.objects.create(poisoned=poison, owner=recipient, icon=form.cleaned_data['icon'])
+            if poison:
+                player.has_poison = False
+                player.save()
+            still_need_drinks = False
+            for player in game.player_set.filter(alive=True):
+                if not player.drink_set.all():
+                    still_need_drinks = True
+            if not still_need_drinks:
+                game.change_gamestate(GAMESTATE_CHOICES.TRADING)
+                player.no_longer_server()
     return redirect('game_detail', pk=game.pk)
 
 
@@ -182,7 +191,10 @@ def poison_drink_view(request, pk):
     player = get_object_or_404(Player, game=game, session_key=session_key)
     if not player.alive:
         raise Http404(_('Dead people cannot poison'))
+    if not player.has_poison:
+        return redirect('game_detail', pk=game.pk)
     player.poison_drink()
+    request.session['successfully_poisoned'] = True
     return redirect('game_detail', pk=game.pk)
 
 
@@ -194,7 +206,7 @@ def propose_toast_view(request, pk):
     player = get_object_or_404(Player, game=game, session_key=session_key)
     if not player.team == TEAM_CHOICES.AMBASSADOR:
         raise Http404(_('You cannot propose a toast, you are not the ambassador'))
-    for player in game.player_set.all():
+    for player in game.player_set.filter(alive=True):
         player.drink()
         player.wants_to_trade.clear()
         player.wants_to_trade_with_me.clear()

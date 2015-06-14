@@ -17,28 +17,53 @@
 
     }
     .game-body-container {
+        @include span-columns(12);
         padding:20px;
         .players-title {
             margin-bottom:30px;
         }
+        .poison-drink-desktop-link{
+        }
         .player-list{
+            @include span-columns(12);
             li {
-                margin-bottom:10px;
+                @include span-columns(12);
+                @include omega;
+                @include media($small-screen) {
+                    margin-bottom:10px;
+                    padding-bottom:0px;
+                }
+                margin-bottom:30px;
+                padding-bottom:20px;
+                border-bottom: 1px solid black;
                 img.drink-icon {
-                    margin-left:10px;
-                    height:15px;
-                    width:15px;
+                    -webkit-transition: all 2s; // Chrome
+                    -moz-transition: all 2s; // Mozilla
+                    -o-transition: all 2s; // Opera
+                    transition: all 2s;
+                    height:35px;
+                    width:35px;
+                    padding:5px;
+                    border: 1px solid black;
+                }
+                img.drink-icon.poisoned {
+                    background-color: green;
+                }
+                .player-item {
+                    @include span-columns(3);
+
                 }
             }
 
         }
         .team-info-container {
             margin-top:40px;
+            .team-box-toggle {
+                background-color:red;
+
+            }
             .team-box {
                 display:none;
-            }
-            .team-box-toggle.has-team {
-                background-color:red;
             }
         }
     }

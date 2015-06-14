@@ -19,9 +19,8 @@ DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    ('Ben Beecher', 'Ben@Lightmatter.com'),
-    ('Greg Hausheer', 'Greg@Lightmatter.com'),
-    ('Ryan Hinchey', 'Ryan@Lightmatter.com'),
+    ('Chris Weed', 'mrweed@gmail.com'),
+    ('Trevor Moorman', 'moormanpt@gmail.com'),
 )
 
 MANAGERS = ADMINS
