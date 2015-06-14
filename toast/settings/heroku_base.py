@@ -8,7 +8,7 @@ except ImportError:
 
 import dj_database_url
 
-from .base import *
+from .base import *  # NOQA
 
 DATABASES = {}
 DATABASES['default'] = dj_database_url.config()
@@ -67,16 +67,15 @@ AWS_QUERYSTRING_AUTH = False
 #AWS_S3_CUSTOM_DOMAIN = "foo.cloudfront.net"
 
 
-EMAIL_BACKEND = "djrill.mail.backends.djrill.DjrillBackend"
-MANDRILL_API_KEY = get_env_setting('MANDRILL_APIKEY')
+# EMAIL_BACKEND = "djrill.mail.backends.djrill.DjrillBackend"
+# MANDRILL_API_KEY = get_env_setting('MANDRILL_APIKEY')
 
-STRIPE_PUBLIC_KEY = get_env_setting('STRIPE_PUBLIC_KEY')
-STRIPE_SECRET_KEY = get_env_setting('STRIPE_SECRET_KEY')
+# STRIPE_PUBLIC_KEY = get_env_setting('STRIPE_PUBLIC_KEY')
+# STRIPE_SECRET_KEY = get_env_setting('STRIPE_SECRET_KEY')
 
-AWS_ACCESS_KEY_ID = get_env_setting('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = get_env_setting('AWS_SECRET_ACCESS_KEY')
-AWS_STORAGE_BUCKET_NAME = get_env_setting('AWS_STORAGE_BUCKET_NAME')
-
+# AWS_ACCESS_KEY_ID = get_env_setting('AWS_ACCESS_KEY_ID')
+# AWS_SECRET_ACCESS_KEY = get_env_setting('AWS_SECRET_ACCESS_KEY')
+# AWS_STORAGE_BUCKET_NAME = get_env_setting('AWS_STORAGE_BUCKET_NAME')
 
 
 #EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
