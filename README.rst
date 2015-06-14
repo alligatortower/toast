@@ -1,24 +1,13 @@
-
-***************************
-LightMatter Django Template
-***************************
-
-ABOUT
-=====
-
-A generic template for Django 1.8.1
-
-
 Instructions
 ============
 Follow the steps below to start a new project using this django template::
 
-    $ django-admin.py startproject --template=https://github.com/Lightmatter/generic-django-conf/archive/master.zip  --extension=py,rb,sh,yml,project_name --name=Procfile <project_name>
-    $ cd <project_name>
+    Clone  this repository into directory toast
+    cd into directory
     $ chmod +x start.sh
     $ ./start.sh
-    $ workon <project_name>
-    $ python <project_name>/manage.py runserver
+    $ workon toast
+    $ ./manage.py runserver
 
 Deployment
 ==========
@@ -46,61 +35,3 @@ Add in the newrelic addon:
 
 After pushing the code, you'll need to syncdb and run the initial migrations:
 ```$ heroku run python manage.py syncdb --migrate```
-
-
-Release notes
-=============
-
-Version 0.1.4 (2015-07-7)
---------------------------
-
-* switching to python 3
-* Upgraded version of django to 1.8.2
-* added casper.js powered acceptance testing
-* added qunit powered javascript unit testing
-* adding script to automatically create heroku hosts
-* using custom user model
-* adding script to test template
-
-
-Version 0.1.3 (2014-07-7)
---------------------------
-
-* bug fixes and updates to readme
-* swiched to waitress
-
-
-Version 0.1.2 (2014-07-7)
---------------------------
-
-* Adding in Easy-thumbnails
-* Restructing heroku settings in a better format
-* Adding in redis for caching
-
-Version 0.1.1 (2014-07-7)
---------------------------
-
-* Adding in django smuggler
-* Adding in error message for manage.py to check to ensure your django settings env variable is set
-
-
-Version 0.1 (2014-07-7)
---------------------------
-
-* First Numbered release
-
-
-Todo
-====
-Things we still want to do::
-
-  caching everything possible (middleware for sure)
-  Setting up heroku optimg/jpgopti and combining with thumbnail
-  404/403 ect
-  500 page
-  user useradmin
-  click jacking
-  django-secure
-  avatars by default
-  setup django crispy and floppy
-  django-htmlmin
