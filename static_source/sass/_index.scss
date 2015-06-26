@@ -1,11 +1,45 @@
 .index-container {
     @include span-columns(12);
     padding: 20px;
+    .option {
+        margin-top:15px;
+    }
+    .or {
+        margin-top:15px;
+        margin-left:80px;
+
+    }
+    form.find-game-form {
+        input {
+            @include span-columns(2);
+            @include media($small-screen) {
+                @include span-columns(6);
+            }
+            text-align:center;
+        }
+        .button-container {
+            @include media($small-screen) {
+                @include span-columns(6)
+            }
+            @include span-columns(10);
+            @include omega();
+            button {
+                @include media($small-screen) {
+                    @include span-columns(6 of 6)
+                }
+                @include span-columns(2 of 10);
+            }
+        }
+    }
     .stats-container {
-        background-color:$main-highlight;
-        display:inline-block;
-        border: 1px solid black;
-        padding:10px
+        margin-top:60px;
+        @include span-columns(12);
+        .stats {
+            background-color:$secondary-highlight;
+            display:inline-block;
+            border: 1px solid black;
+            padding:10px
+        } 
 
     }
 

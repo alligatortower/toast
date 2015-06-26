@@ -8,25 +8,37 @@ Toast: Party Assassin
 {% block content %}
 {% load static from staticfiles %}
 <div class="index-container">
-  <a href="{% url 'create_game' %}">CREATE GAME</a>
-  <span> - Or - </span>
-  <a href="{% url 'continue' %}">Continue game that you've already joined</a>
-  <p>To join a game someone else has started, make them give you the url (and then, you know, go to that url). Don't be  afraid to threaten them</p>
-  <br />
-  <br />
+  <h1>Toast: Party Assassin</h1>
+  <div class="option">
+    <a href="{% url 'create_game' %}"><button>Create Game</button></a>
+  </div>
+  <div class="option">
+    <a href="{% url 'continue' %}"><button>Return to game already joined</button></a>
+  </div>
+  <div class='or'>- OR -</div>
+  <div class="option">
+    <form class='find-game-form' action="{% url 'find_game' %}" method="get">
+      {{ form.game_number }}
+      <div class="button-container">
+        <button type="submit">Find Game</button>
+      </div>
+    </form>
+  </div>
   <div class='stats-container'>
-    <h6>As of the last time we purged the database:</h6>
-    <div class='stat'>
-      {{ loyalist_wins }} - loyalist wins
-    </div>
-    <div class='stat'>
-      {{ traitor_wins }} - traitor wins
-    </div>
-    <div class='stat'>
-      {{ no_wins }} - games ended without winning team
-    </div>
-    <div class='stat'>
-      {{ total_players }} - total players (real or imagined)
+    <div class="stats">
+      <h6>As of the last time we purged the database:</h6>
+      <div class='stat'>
+        {{ loyalist_wins }} - loyalist wins
+      </div>
+      <div class='stat'>
+        {{ traitor_wins }} - traitor wins
+      </div>
+      <div class='stat'>
+        {{ no_wins }} - games ended without winning team
+      </div>
+      <div class='stat'>
+        {{ total_players }} - total players (real or imagined)
+      </div>
     </div>
 </div>
 

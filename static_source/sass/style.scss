@@ -27,8 +27,24 @@ body {
     @include outer-container;
     background-color: $background;
     color: $main-text;
+    font-family: $main-font;
+}
+h1, h2, h3, h4, h5, h6, p, button {
+    font-family: $main-font;
+
 }
 a {
-    color: $secondary-highlight;
+    color: $main-highlight;
+}
+a:hover {
+    color: $main-text;
 
+}
+button {
+    background-color: $main-highlight;
+    color:white;
+    border:1px solid $main-highlight;
+}
+button:hover {
+    background-color:$main-text;
 }

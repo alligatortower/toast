@@ -3,24 +3,38 @@
     @include omega;
     background-color: $secondary-background;
     .game-header {
-        background-color: $tertiary-highlight;
+        background-color: $main-text;
+        color:$secondary-highlight;
         padding:20px;
-        .last-trade-container {
-            margin-top:5px;
-            margin-bottom:5px;
-            .last-trade {
-                border:1px solid black;
-                background-color: $attention-background;
-                padding:3px;
-            }
+        .gamestate {
+            color:white;
         }
-
+        .header-button {
+            margin-top:10px;
+        }
     }
     .game-body-container {
         @include span-columns(12);
         padding:20px;
-        .players-title {
+        .game-body-header {
             margin-bottom:30px;
+            .players-title {
+                display:inline-block;
+            }
+            .last-trade-container {
+                display:inline-block;
+                margin-top:10px;
+                margin-bottom:5px;
+                .last-trade {
+                    border:1px solid $secondary-highlight;
+                    background-color: $secondary-background;
+                    padding:6px;
+                    margin-left:10px;
+                    .name {
+                        color: $secondary-highlight;;
+                    }
+                }
+            }
         }
         .poison-drink-desktop-link{
         }
@@ -41,8 +55,8 @@
                     -moz-transition: all 2s; // Mozilla
                     -o-transition: all 2s; // Opera
                     transition: all 2s;
-                    height:35px;
-                    width:35px;
+                    height:45px;
+                    width:45px;
                     padding:5px;
                     border: 1px solid black;
                 }
@@ -58,10 +72,6 @@
         }
         .team-info-container {
             margin-top:40px;
-            .team-box-toggle {
-                background-color:red;
-
-            }
             .team-box {
                 display:none;
             }

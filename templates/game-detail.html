@@ -6,92 +6,36 @@ Toast: Party Assassin
 
 
 {% block content %}
-{% load static from staticfiles %}
 <div class='game-detail-container'>
-  <div class='game-header'>
-    <h5>Currently in game #{{ game.pk }}</h5>
-    <h6>Gamestate: {{ game.gamestate }}</h6>
-    {% if you.last_trade %}
-      <div class='last-trade-container'>
-        <span class='last-trade'>last traded drinks with: {{ you.last_trade }}</span>
-      </div>
-    {% endif %}
-    {% if you.game_owner and game.gamestate == 'unstarted' %}<a href='{% url 'start_game' game.pk %}'>Start Game</a>{% endif %}
-    {% if you.team == 'ambassador' and game.gamestate == 'trading' %}<a href='{% url 'propose_toast' game.pk %}'>Propose Toast</a><br />{% endif %}
-    {% if game.gamestate == 'trading' and you.team != 'ambassador' %}<a class='poison-drink-desktop-link' href='{% url 'poison_drink' game.pk %}'>Poison your drink</a>{% endif %}
-  </div>
-  <div class="game-body-container">
-    <h4 class='players-title'>Players</h4>
-    <ul class='player-list'>
-      {% for player in game.player_set.all %}
-        <li>
-            <div class="player-item public-role-container">
-              {% if not player.team == 'ambassador' and not player.serve %}<span>&nbsp;</span>{% endif %}
-              {% if player.team == 'ambassador' %}[A]{% endif %}
-              {% if player.server %}[S]{% endif %}
-            </div>
-            <div class="player-item name-container">
-              {% if not player.alive %}<strike>{% endif %}
-              {% if player.pk == you.pk %}<strong>{% endif %}
-                {{ player }}
-              {% if player.pk == you.pk %}</strong>{% endif %}
-              {% if not player.alive %}</strike>{% endif %}
-            </div>
-            <div class='player-item drink-container'>
-              {% for drink in player.drink_set.all %}<img class='{% if player.pk == you.pk %}your-drink-icon {% endif %}drink-icon' src='{{ drink.icon }}' />{% endfor %}
-            </div>
-          {% if player.alive %}
-            <div class="player-item options-container">
-              {% if you.team == 'ambassador' and game.gamestate == 'choosing' and you.pk != player.pk %}
-                <a href='{% url 'choose_server' game.pk player.pk %}'>Choose as server</a>
-              {% endif %}
-              {% if you.server and game.gamestate == 'serving' and not player.drink_set.all %}
-                <a href='{% url 'serve_drink' game.pk player.pk %}'>Serve drink</a>
-              {% endif %}
-              {% if you in player.wants_to_trade_with_me.all %}
-                <span>Trade Offered</span>
-              {% endif %}
-              {% if game.gamestate == 'trading' and player != you and you not in player.wants_to_trade_with_me.all %}
-                <a class='offer-to-trade' href='{% url 'offer_trade' game.pk player.pk %}'>
-                  {% if player in you.wants_to_trade_with_me.all %}
-                    <span class='wants-trade'>Wants Trade</span>
-                  {% else %}
-                    <span class='trade'> Trade </span>
-                  {% endif %}
-                </a>
-              {% endif %}
-            </div>
-          {% endif %}
-        </li>
-      {% endfor %}
-    </ul>
-    {% if you.team != 'unassigned' %}
-      <div class="team-info-container">
-        <button class="team-box-toggle">Show / Hide team name</button>
-        <div class="team-box">
-          {{ you.team.title }}
-        </div>
-      </div>
-    {% endif %}
-  </div>
+  {% include 'snippets/game-meat.html' %}
 </div>
 {% endblock content %}
 {% block body_media %}
 <script>
   window.onload = function() {
-    setTimeout(function(){
-      window.location.reload(1);
-    }, 10000);
-
-    $('.team-box-toggle').click(function() {
-      $('.team-box').toggle();
-    });
+    refresh = function() {
+        $.ajax({
+          url: "{% url 'game_detail' game.pk %}",
+          success: function(data) {
+            $('.game-detail-container').html(data);
+            set_jquery_binds();
+          }
+        });
+    };
     {% if successfully_poisoned %}
       $('.your-drink-icon').addClass('poisoned')
       setTimeout(function(){
         $('.your-drink-icon').removeClass('poisoned')
       }, 1000);
     {% endif %}
+
+    set_jquery_binds = function() {
+      $('.team-box-toggle').click(function() {
+        $('.team-box').toggle();
+      });
+    };
+    setInterval("refresh()", 5000);
+    set_jquery_binds();
 
   };
 </script>

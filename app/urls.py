@@ -9,6 +9,7 @@ urlpatterns = [
     url(r'^rules/$', TemplateView.as_view(template_name='rules.html'), name='rules'),
     url(r'^continue/$', views.continue_game_view, name='continue'),
     url(r'^creategame/$', views.create_game_view, name='create_game'),
+    url(r'^findgame/$', views.find_game_view, name='find_game'),
     url(r'^game/(?P<pk>[-_\w]+)/start/$', views.start_game_view, name='start_game'),
     url(r'^game/(?P<pk>[-_\w]+)/player_name/$', views.player_name_view, name='player_name'),
     url(r'^game/(?P<pk>[-_\w]+)/end/$', views.end_game_view, name='end_game'),

@@ -14,3 +14,10 @@ class ServeDrinkForm(forms.ModelForm):
     class Meta:
         model = Drink
         fields = ('poisoned', 'icon')
+
+
+class FindGameForm(forms.Form):
+    game_number = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Game #'}))
+
+    class Meta:
+        fields = ('game_number')

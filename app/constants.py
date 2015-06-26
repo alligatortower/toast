@@ -15,9 +15,9 @@ TEAM_CHOICES = TEAMS_THAT_WIN + OTHER_TEAMS
 
 GAMESTATE_CHOICES = Choices(
     ('unstarted', 'UNSTARTED', _('Unstarted')),
-    ('choosing', 'CHOOSING', _('Waiting for Ambassador to choose server')),
-    ('serving', 'SERVING', _('Waiting for server to serve drinks')),
-    ('trading', 'TRADING', _('Waiting for Ambassador to propose toast')),
+    ('choosing', 'CHOOSING', _('Ambassador is Choosing the server')),
+    ('serving', 'SERVING', _('The Server is serving drinks')),
+    ('trading', 'TRADING', _('Drinks may be traded until the Toast')),
     ('ended', 'ENDED', _('Ended')),
 )
 DRINK_ICON_CHOICES = Choices(

@@ -16,15 +16,20 @@ class Game(TimeStampedModel):
         ambassador_index = random.randrange(1, len(players))
         ambassador = players.pop(ambassador_index)
         ambassador.set_team(TEAM_CHOICES.AMBASSADOR)
-        loyalist = True
-        while len(players) > 0:
-            player_count = len(players)
-            random_player_index = random.randrange(0, player_count)
-            player = players.pop(random_player_index)
-            player.set_team(TEAM_CHOICES.LOYALIST) if loyalist else player.set_team(TEAM_CHOICES.TRAITOR)
-            if player.team == TEAM_CHOICES.TRAITOR:
-                player.renew_poison()
-            loyalist = not loyalist
+        if len(players) == 1:
+            player = players[0]
+            player.set_team(TEAM_CHOICES.TRAITOR)
+            player.renew_poison()
+        else:
+            loyalist = True
+            while len(players) > 0:
+                player_count = len(players)
+                random_player_index = random.randrange(0, player_count)
+                player = players.pop(random_player_index)
+                player.set_team(TEAM_CHOICES.LOYALIST) if loyalist else player.set_team(TEAM_CHOICES.TRAITOR)
+                if player.team == TEAM_CHOICES.TRAITOR:
+                    player.renew_poison()
+                loyalist = not loyalist
 
         self.change_gamestate(GAMESTATE_CHOICES.CHOOSING)
         self.save()
@@ -47,8 +52,16 @@ class Game(TimeStampedModel):
             self.change_gamestate(GAMESTATE_CHOICES.CHOOSING)
 
     def change_gamestate(self, state):
+        if state == 'trading':
+            for player in self.player_set.all():
+                player.server = False
+                player.save()
         self.gamestate = state
         self.save()
+
+    @property
+    def gamestate_display(self):
+        return str(GAMESTATE_CHOICES[self.gamestate])
 
 
 class Player(TimeStampedModel):
@@ -77,10 +90,6 @@ class Player(TimeStampedModel):
         self.server = True
         self.save()
 
-    def no_longer_server(self):
-        self.server = False
-        self.save()
-
     def renew_poison(self):
         self.has_poison = True
         self.save()
@@ -103,6 +112,10 @@ class Player(TimeStampedModel):
         if drink.poisoned:
             self.kill()
         drink.delete()
+
+    @property
+    def team_display(self):
+        return str(TEAM_CHOICES[self.team])
 
 
 class Drink(models.Model):
