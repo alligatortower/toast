@@ -1,10 +1,9 @@
-
 <div class='game-header'>
   <h5>Currently in game #{{ game.pk }}</h5>
   <h6><span class='gamestate'>{{ game.gamestate_display }}</span></h6>
   {% if you.game_owner and game.gamestate == 'unstarted' %}<a href='{% url 'start_game' game.pk %}'><button class='header-button'>Start Game</button></a>{% endif %}
-  {% if you.team == 'ambassador' and game.gamestate == 'trading' %}<a href='{% url 'propose_toast' game.pk %}'><button class='header-button'>Propose Toast</button></a><br />{% endif %}
-  {% if game.gamestate == 'trading' and you.team != 'ambassador' %}<a class='poison-drink-desktop-link' href='{% url 'poison_drink' game.pk %}'><button class='header-button'>Poison your drink</button></a>{% endif %}
+  {% if you.host and game.gamestate == 'trading' %}<a href='{% url 'propose_toast' game.pk %}'><button class='header-button'>Propose Toast</button></a><br />{% endif %}
+  {% if game.gamestate == 'trading' and you.host %}<a class='poison-drink-desktop-link' href='{% url 'poison_drink' game.pk %}'><button class='header-button'>Poison your drink</button></a>{% endif %}
 </div>
 <div class="game-body-container">
   <div class='game-body-header'>
@@ -19,8 +18,8 @@
     {% for player in game.player_set.all %}
       <li>
           <div class="player-item public-role-container">
-            {% if not player.team == 'ambassador' and not player.serve %}<span>&nbsp;</span>{% endif %}
-            {% if player.team == 'ambassador' %}[A]{% endif %}
+            {% if not player.host and not player.serve %}<span>&nbsp;</span>{% endif %}
+            {% if player.host %}[A]{% endif %}
             {% if player.server %}[S]{% endif %}
           </div>
           <div class="player-item name-container">
@@ -35,7 +34,7 @@
           </div>
         {% if player.alive %}
           <div class="player-item options-container">
-            {% if you.team == 'ambassador' and game.gamestate == 'choosing' and you.pk != player.pk %}
+            {% if you.host and game.gamestate == 'choosing' and you.pk != player.pk %}
               <a href='{% url 'choose_server' game.pk player.pk %}'>Choose as server</a>
             {% endif %}
             {% if you.server and game.gamestate == 'serving' and not player.drink_set.all %}
@@ -58,7 +57,7 @@
       </li>
     {% endfor %}
   </ul>
-  {% if you.team != 'unassigned' %}
+  {% if you.team %}
     <div class="team-info-container">
       <button class="team-box-toggle">Show / Hide team name</button>
       <div class="team-box">

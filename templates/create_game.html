@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}
+Toast: Party Assassin
+{% endblock title %}
+
+
+{% block content %}
+{% load static from staticfiles %}
+<div class="player-name-container">
+  <h3>What type of game?</h3>
+  <form action="{% url 'create_game' %}" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Create Game</button>
+  </form>
+</div>
+{% endblock content %}

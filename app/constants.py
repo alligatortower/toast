@@ -2,16 +2,22 @@ from model_utils import Choices
 from django.templatetags.static import static
 from django.utils.translation import ugettext_lazy as _
 
-TEAMS_THAT_WIN = Choices(
+ASYMMETRICAL_TEAMS = Choices(
     ('loyalist', 'LOYALIST', _('Loyalist')),
     ('traitor', 'TRAITOR', _('Traitor')),
 )
-OTHER_TEAMS = Choices(
-    ('unassigned', 'UNASSIGNED', _('Unassigned')),
-    ('ambassador', 'AMBASSADOR', _('Ambassador')),
-    ('dead', 'DEAD', _('Dead')),
+
+EQUAL_TEAMS = Choices(
+    ('empire', 'EMPIRE', _('Empire')),
+    ('republic', 'REPUBLIC', _('Republic')),
 )
-TEAM_CHOICES = TEAMS_THAT_WIN + OTHER_TEAMS
+
+TEAM_CHOICES = ASYMMETRICAL_TEAMS + EQUAL_TEAMS
+
+GAME_TYPE_CHOICES = Choices(
+    ('asymmetrical', 'ASYMMETRICAL', _('Asymmetrical')),
+    ('team', 'TEAM', _('Team')),
+)
 
 GAMESTATE_CHOICES = Choices(
     ('unstarted', 'UNSTARTED', _('Unstarted')),

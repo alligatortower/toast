@@ -1,6 +1,14 @@
 from django import forms
 
+from .constants import GAME_TYPE_CHOICES
 from .models import Drink
+
+
+class CreateGameForm(forms.Form):
+    game_type = forms.ChoiceField(choices=GAME_TYPE_CHOICES, required=True)
+
+    class Meta:
+        fields = ('game_type',)
 
 
 class PlayerNameForm(forms.Form):

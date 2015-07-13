@@ -32,6 +32,7 @@ django-braces==1.8.0
 git+https://github.com/mikeorr/Unipath.git#egg=unipath
 pytz==2015.4
 easy-thumbnails==2.2
+django-polymorphic==0.7.1
 
 #JS tools
 #django.js==0.8.1 # needs to be fixed up - using lightmatter version for now

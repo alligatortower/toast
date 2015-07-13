@@ -4,8 +4,8 @@ from django.shortcuts import redirect, render, render_to_response, get_object_or
 from django.utils.translation import ugettext_lazy as _
 
 from .constants import TEAM_CHOICES, GAMESTATE_CHOICES
-from .forms import FindGameForm, PlayerNameForm, ServeDrinkForm
-from .models import Game, Player, Drink
+from .forms import CreateGameForm, FindGameForm, PlayerNameForm, ServeDrinkForm
+from .models import Game, AsymmetricalGame, Player, Drink
 
 
 def error(request):
@@ -14,16 +14,31 @@ def error(request):
 
 
 def index(request):
-    loyalist_wins = Game.objects.filter(winners=TEAM_CHOICES.LOYALIST).count()
-    traitor_wins = Game.objects.filter(winners=TEAM_CHOICES.TRAITOR).count()
-    no_wins = Game.objects.filter(winners=None, gamestate=GAMESTATE_CHOICES.ENDED).count()
-    total_players = Player.objects.all().count()
-    return render(request, 'index.html', {'loyalist_wins': loyalist_wins,
-        'traitor_wins': traitor_wins,
-        'no_wins': no_wins,
-        'total_players': total_players,
-        'form': FindGameForm()
-    })
+    # loyalist_wins = Game.objects.filter(winners=TEAM_CHOICES.LOYALIST).count()
+    # traitor_wins = Game.objects.filter(winners=TEAM_CHOICES.TRAITOR).count()
+    # no_wins = Game.objects.filter(winners=None, gamestate=GAMESTATE_CHOICES.ENDED).count()
+    # total_players = Player.objects.all().count()
+    context = {'form': FindGameForm()
+        # 'loyalist_wins': loyalist_wins,
+        # 'traitor_wins': traitor_wins,
+        # 'no_wins': no_wins,
+        # 'total_players': total_players,
+    }
+    return render(request, 'index.html', context)
+
+
+def create_game_view(request):
+    if request.method == 'GET':
+        form = CreateGameForm()
+    elif request.method == 'POST':
+        form = CreateGameForm(request.POST)
+        if form.is_valid():
+            session_key = request.session.session_key
+            if form.cleaned_data['game_type'] == 'asymmetrical':
+                game = AsymmetricalGame.objects.create()
+            game.create_player(session_key=session_key, game_owner=True)
+            return redirect('player_name', pk=game.pk)
+    return render(request, 'create_game.html', {'form': form})
 
 
 def find_game_view(request):
@@ -48,13 +63,6 @@ def continue_game_view(request):
         return redirect('game_detail', pk=player.game.pk)
     messages.error(request, "Sorry, we couldn't find any ongoing games that you're a player in")
     return redirect('index')
-
-
-def create_game_view(request):
-    game = Game.objects.create()
-    session_key = request.session.session_key
-    Player.objects.create(game=game, session_key=session_key, game_owner=True)
-    return redirect('player_name', pk=game.pk)
 
 
 def start_game_view(request, pk):
@@ -93,7 +101,7 @@ def game_detail_view(request, pk):
     if not player:
         if game.gamestate != GAMESTATE_CHOICES.UNSTARTED:
             raise Http404(_('This game has already started, join the next one'))
-        player = Player.objects.create(game=game, session_key=session_key)
+        player = game.create_player(session_key)
         return redirect('player_name', game.pk)
     if not player.alive:
         context = {'you': None, 'game': game}
