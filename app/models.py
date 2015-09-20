@@ -98,7 +98,7 @@ class Game(PolymorphicModel, TimeStampedModel):
 
     def alive_on_team(self, team):
         player_model = get_model('app', self.player_model)
-        return bool(player_model.objects.filter(team=team, alive=True))
+        return player_model.objects.filter(game=self, team=team, alive=True).exists()
 
     def update_rounds_without_kill(self, pre_players, post_players):
         if pre_players == post_players:
@@ -236,7 +236,7 @@ class AsymmetricalGame(Game):
             self.change_gamestate(c.GAMESTATE_CHOICES.ENDED)
             self.winners = c.ASYMMETRICAL_TEAMS.TRAITOR
             self.save()
-        elif not self.renew_poison_each_round and not self.player_set.filter(alive=True, has_poison=True):
+        elif not self.renew_poison_each_round and not self.player_set.filter(alive=True, has_poison=True).exists():
             self.change_gamestate(c.GAMESTATE_CHOICES.ENDED)
             self.set_winners('Draw, no poison left')
             self.save()
@@ -280,10 +280,13 @@ class TeamGame(Game):
         self.update_rounds_without_kill(live_players.count(), live_players_after_drinking)
         empire_alive = self.alive_on_team(c.EQUAL_TEAMS.EMPIRE)
         republic_alive = self.alive_on_team(c.EQUAL_TEAMS.REPUBLIC)
-        if not empire_alive or not republic_alive:
+        if not empire_alive and not republic_alive:
+            self.change_gamestate(c.GAMESTATE_CHOICES.ENDED)
+            self.set_winners('Draw, everyone is dead')
+        elif not empire_alive or not republic_alive:
             self.change_gamestate(c.GAMESTATE_CHOICES.ENDED)
             self.set_winners(c.TEAM_CHOICES.REPUBLIC if republic_alive else c.TEAM_CHOICES.EMPIRE)
-        elif not self.renew_poison_each_round and not self.player_set.filter(alive=True, has_poison=True):
+        elif not self.renew_poison_each_round and not self.player_set.filter(alive=True, has_poison=True).exists():
             self.change_gamestate(c.GAMESTATE_CHOICES.ENDED)
             self.set_winners('Draw, no poison left')
         elif self.rounds_without_kill >= self.no_kill_rounds_before_draw:
