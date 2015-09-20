@@ -8,7 +8,7 @@ Toast: Party Assassin
 {% block content %}
 {% load static from staticfiles %}
 <div class="player-name-container">
-  <h3>What is your name?</h3>
+  <h3>What drink will you serve?</h3>
   <form action="{% url 'serve_drink' game_pk recipient.pk %}" method="post">
     {% csrf_token %}
     {{ form.as_p }}

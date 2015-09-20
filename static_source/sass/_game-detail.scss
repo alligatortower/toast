@@ -1,81 +1,89 @@
 .game-detail-container {
+  @include span-columns(12);
+  @include omega;
+  background-color: $secondary-background;
+  .game-header {
+    background-color: $main-text;
+    color:$secondary-highlight;
+    padding:20px;
+    .gamestate {
+      color:white;
+    }
+    .header-button {
+      margin-top:10px;
+    }
+  }
+  .game-body-container {
     @include span-columns(12);
-    @include omega;
-    background-color: $secondary-background;
-    .game-header {
-        background-color: $main-text;
-        color:$secondary-highlight;
-        padding:20px;
-        .gamestate {
-            color:white;
+    padding:20px;
+    .game-body-header {
+      margin-bottom:30px;
+      .players-title {
+        display:inline-block;
+      }
+      .last-trade-container {
+        display:inline-block;
+        margin-top:10px;
+        margin-bottom:5px;
+        .last-trade {
+          border:1px solid $secondary-highlight;
+          background-color: $secondary-background;
+          padding:6px;
+          margin-left:10px;
+          .name {
+            color: $secondary-highlight;;
+          }
         }
-        .header-button {
-            margin-top:10px;
-        }
+      }
     }
-    .game-body-container {
+    .poison-drink-desktop-link{
+    }
+    .player-list{
+      @include span-columns(12);
+      li {
         @include span-columns(12);
-        padding:20px;
-        .game-body-header {
-            margin-bottom:30px;
-            .players-title {
-                display:inline-block;
-            }
-            .last-trade-container {
-                display:inline-block;
-                margin-top:10px;
-                margin-bottom:5px;
-                .last-trade {
-                    border:1px solid $secondary-highlight;
-                    background-color: $secondary-background;
-                    padding:6px;
-                    margin-left:10px;
-                    .name {
-                        color: $secondary-highlight;;
-                    }
-                }
-            }
+        @include omega;
+        @include media($small-screen) {
+          margin-bottom:10px;
+          padding-bottom:0px;
         }
-        .poison-drink-desktop-link{
+        margin-bottom:30px;
+        padding-bottom:20px;
+        border-bottom: 1px solid black;
+        img.drink-icon {
+          -webkit-transition: all 2s; // Chrome
+          -moz-transition: all 2s; // Mozilla
+          -o-transition: all 2s; // Opera
+          transition: all 2s;
+          height:45px;
+          width:45px;
+          padding:5px;
+          border: 1px solid black;
         }
-        .player-list{
-            @include span-columns(12);
-            li {
-                @include span-columns(12);
-                @include omega;
-                @include media($small-screen) {
-                    margin-bottom:10px;
-                    padding-bottom:0px;
-                }
-                margin-bottom:30px;
-                padding-bottom:20px;
-                border-bottom: 1px solid black;
-                img.drink-icon {
-                    -webkit-transition: all 2s; // Chrome
-                    -moz-transition: all 2s; // Mozilla
-                    -o-transition: all 2s; // Opera
-                    transition: all 2s;
-                    height:45px;
-                    width:45px;
-                    padding:5px;
-                    border: 1px solid black;
-                }
-                img.drink-icon.poisoned {
-                    background-color: green;
-                }
-                .player-item {
-                    @include span-columns(3);
-
-                }
-            }
+        img.drink-icon.poisoned {
+          background-color: green;
+        }
+        .player-item {
+          @include span-columns(3);
 
         }
-        .team-info-container {
-            margin-top:40px;
-            .team-box {
-                display:none;
-            }
-        }
+      }
     }
+    .trade-list-container {
+      @include span-columns(6);
+      .trade-list {
+      }
+    }
+    .rule-list {
+      @include span-columns(6);
 
+    }
+    .team-info-container {
+      @include span-columns(12);
+      margin-top:40px;
+      .team-box {
+        display:none;
+      }
+    }
+  }
 }

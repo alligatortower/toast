@@ -14,16 +14,19 @@ EQUAL_TEAMS = Choices(
 
 TEAM_CHOICES = ASYMMETRICAL_TEAMS + EQUAL_TEAMS
 
+#make DB value equal class name
 GAME_TYPE_CHOICES = Choices(
-    ('asymmetrical', 'ASYMMETRICAL', _('Asymmetrical')),
-    ('team', 'TEAM', _('Team')),
+    ('AsymmetricalGame', 'ASYMMETRICAL', _('Asymmetrical')),
+    ('TeamGame', 'TEAM', _('Team')),
 )
 
 GAMESTATE_CHOICES = Choices(
     ('unstarted', 'UNSTARTED', _('Unstarted')),
-    ('choosing', 'CHOOSING', _('Ambassador is Choosing the server')),
+    ('choosing', 'CHOOSING', _('The Host is Choosing the Server')),
     ('serving', 'SERVING', _('The Server is serving drinks')),
     ('trading', 'TRADING', _('Drinks may be traded until the Toast')),
+    ('toast_proposed', 'PROPOSED', _('All drinks must be raised to toast')),
+    ('toast', 'TOAST', _('All drinks must be raised to toast')),
     ('ended', 'ENDED', _('Ended')),
 )
 DRINK_ICON_CHOICES = Choices(
@@ -40,3 +43,4 @@ DRINK_ICON_CHOICES = Choices(
     (static('img/drink-icons/wedge-on-rim.png'), _('With a wedge')),
     (static('img/drink-icons/wine.png'), _('Wine')),
 )
+GAMESTATES_THAT_ALLOW_TRADING = ['trading', 'toast_proposed']

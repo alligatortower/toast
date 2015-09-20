@@ -10,7 +10,8 @@ Toast: Party Assassin
 <div class="index-container">
   <h1>Toast: Party Assassin</h1>
   <div class="option">
-    <a href="{% url 'create_game' %}"><button>Create Game</button></a>
+    <a href="{% url 'create_custom_game' %}"><button>Create Custom Game</button></a>
+    <a href="{% url 'create_team_game' %}"><button>Create Quick Team Game</button></a>
   </div>
   <div class="option">
     <a href="{% url 'continue' %}"><button>Return to game already joined</button></a>
@@ -24,6 +25,7 @@ Toast: Party Assassin
       </div>
     </form>
   </div>
+  {% comment %}
   <div class='stats-container'>
     <div class="stats">
       <h6>As of the last time we purged the database:</h6>
@@ -40,6 +42,7 @@ Toast: Party Assassin
         {{ total_players }} - total players (real or imagined)
       </div>
     </div>
+  {% endcomment %}
 </div>
 
 {% endblock content %}
