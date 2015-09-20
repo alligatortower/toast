@@ -119,6 +119,7 @@ INSTALLED_APPS = (
     'grappelli',
     'filebrowser',
     'reversion',
+    'polymorphic',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',

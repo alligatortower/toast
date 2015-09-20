@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}
+Toast: Party Assassin
+{% endblock title %}
+
+
+{% block content %}
+{% load static from staticfiles %}
+<div class="player-name-container">
+  <h3>What type of game?</h3>
+  <form class='create-game-form' action="{% url 'create_custom_game' %}" method="post">
+    {% csrf_token %}
+    {% for field in form %}
+    <p>
+      {{ field.errors }}
+      <span class='form-label' for='{{ field.id_for_label }}'>{{ field.label }}</span>
+      {% if field.help_text %}
+        <span class='help-text'> - ({{ field.help_text }})</span>
+      {% endif %}
+      {{ field }}
+    </p>
+    {% endfor %}
+    <button type="submit">Create Game</button>
+  </form>
+</div>
+{% endblock content %}

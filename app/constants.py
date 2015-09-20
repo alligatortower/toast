@@ -2,22 +2,31 @@ from model_utils import Choices
 from django.templatetags.static import static
 from django.utils.translation import ugettext_lazy as _
 
-TEAMS_THAT_WIN = Choices(
+ASYMMETRICAL_TEAMS = Choices(
     ('loyalist', 'LOYALIST', _('Loyalist')),
     ('traitor', 'TRAITOR', _('Traitor')),
 )
-OTHER_TEAMS = Choices(
-    ('unassigned', 'UNASSIGNED', _('Unassigned')),
-    ('ambassador', 'AMBASSADOR', _('Ambassador')),
-    ('dead', 'DEAD', _('Dead')),
+
+EQUAL_TEAMS = Choices(
+    ('empire', 'EMPIRE', _('Empire')),
+    ('republic', 'REPUBLIC', _('Republic')),
 )
-TEAM_CHOICES = TEAMS_THAT_WIN + OTHER_TEAMS
+
+TEAM_CHOICES = ASYMMETRICAL_TEAMS + EQUAL_TEAMS
+
+#make DB value equal class name
+GAME_TYPE_CHOICES = Choices(
+    ('AsymmetricalGame', 'ASYMMETRICAL', _('Asymmetrical')),
+    ('TeamGame', 'TEAM', _('Team')),
+)
 
 GAMESTATE_CHOICES = Choices(
     ('unstarted', 'UNSTARTED', _('Unstarted')),
-    ('choosing', 'CHOOSING', _('Ambassador is Choosing the server')),
+    ('choosing', 'CHOOSING', _('The Host is Choosing the Server')),
     ('serving', 'SERVING', _('The Server is serving drinks')),
     ('trading', 'TRADING', _('Drinks may be traded until the Toast')),
+    ('toast_proposed', 'PROPOSED', _('All drinks must be raised to toast')),
+    ('toast', 'TOAST', _('All drinks must be raised to toast')),
     ('ended', 'ENDED', _('Ended')),
 )
 DRINK_ICON_CHOICES = Choices(
@@ -34,3 +43,4 @@ DRINK_ICON_CHOICES = Choices(
     (static('img/drink-icons/wedge-on-rim.png'), _('With a wedge')),
     (static('img/drink-icons/wine.png'), _('Wine')),
 )
+GAMESTATES_THAT_ALLOW_TRADING = ['trading', 'toast_proposed']

@@ -8,7 +8,8 @@ urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^rules/$', TemplateView.as_view(template_name='rules.html'), name='rules'),
     url(r'^continue/$', views.continue_game_view, name='continue'),
-    url(r'^creategame/$', views.create_game_view, name='create_game'),
+    url(r'^creategame/$', views.create_custom_game_view, name='create_custom_game'),
+    url(r'^teamgame/$', views.create_team_game_view, name='create_team_game'),
     url(r'^findgame/$', views.find_game_view, name='find_game'),
     url(r'^game/(?P<pk>[-_\w]+)/start/$', views.start_game_view, name='start_game'),
     url(r'^game/(?P<pk>[-_\w]+)/player_name/$', views.player_name_view, name='player_name'),
@@ -18,9 +19,9 @@ urlpatterns = [
     url(r'^game/(?P<game_pk>[-_\w]+)/serve/(?P<recipient_pk>[-_\w]+)/$', views.serve_drink_view, name='serve_drink'),
     url(r'^game/(?P<game_pk>[-_\w]+)/trade/(?P<partner_pk>[-_\w]+)/$', views.offer_trade_view, name='offer_trade'),
     url(r'^game/(?P<pk>[-_\w]+)/poison$', views.poison_drink_view, name='poison_drink'),
-    url(r'^game/(?P<pk>[-_\w]+)/toast$', views.propose_toast_view, name='propose_toast'),
-
-
+    url(r'^game/(?P<pk>[-_\w]+)/propose_toast$', views.propose_toast_view, name='propose_toast'),
+    url(r'^game/(?P<pk>[-_\w]+)/raise_drink', views.raise_drink_view, name='raise_drink'),
+    url(r'^game/(?P<pk>[-_\w]+)/toast$', views.toast_view, name='toast'),
 ]
 
 from .signals import *  # NOQA ensure that the signals are attatched via import

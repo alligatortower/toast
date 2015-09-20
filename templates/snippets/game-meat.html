@@ -1,10 +1,12 @@
-
+{% load can_trade %}
 <div class='game-header'>
   <h5>Currently in game #{{ game.pk }}</h5>
   <h6><span class='gamestate'>{{ game.gamestate_display }}</span></h6>
   {% if you.game_owner and game.gamestate == 'unstarted' %}<a href='{% url 'start_game' game.pk %}'><button class='header-button'>Start Game</button></a>{% endif %}
-  {% if you.team == 'ambassador' and game.gamestate == 'trading' %}<a href='{% url 'propose_toast' game.pk %}'><button class='header-button'>Propose Toast</button></a><br />{% endif %}
-  {% if game.gamestate == 'trading' and you.team != 'ambassador' %}<a class='poison-drink-desktop-link' href='{% url 'poison_drink' game.pk %}'><button class='header-button'>Poison your drink</button></a>{% endif %}
+  {% if you.host and game.gamestate == 'trading' %}<a href='{% url 'propose_toast' game.pk %}'><button class='header-button'>Propose Toast</button></a><br />{% endif %}
+  {% if not you.host and game.gamestate == 'toast_proposed' and not you.drink_raised %}<a href='{% url 'raise_drink' game.pk %}'><button class='header-button'>Raise Drink</button></a><br />{% endif %}
+  {% if you.drink_raised and game.gamestate == 'toast_proposed' %}<br><span class='drink-raised'>You have raised your drink</span>{% endif %}
+  {% if you.host and game.gamestate == 'toast' %}<a href='{% url 'toast' game.pk %}'><button class='header-button'>Give Toast</button></a>{% endif %}
 </div>
 <div class="game-body-container">
   <div class='game-body-header'>
@@ -17,11 +19,19 @@
   </div>
   <ul class='player-list'>
     {% for player in game.player_set.all %}
+      {% can_trade you gamestate=game.gamestate player=player as can_trade %}
       <li>
           <div class="player-item public-role-container">
-            {% if not player.team == 'ambassador' and not player.serve %}<span>&nbsp;</span>{% endif %}
-            {% if player.team == 'ambassador' %}[A]{% endif %}
+            {% if not player.host and not player.server %}<span>&nbsp;</span>{% endif %}
+            {% if player.host %}[H]{% endif %}
+            {% if player.host and player.server %}<span>&nbsp;</span>{% endif %}
             {% if player.server %}[S]{% endif %}
+            {% if player.host or player.server %}
+              {% if player.team_revealed %}
+                <span>&nbsp;</span>
+              {% endif %}
+            {% endif %}
+            {% if player.team_revealed %}[{{ player.team_short_display }}]{% endif %}
           </div>
           <div class="player-item name-container">
             {% if not player.alive %}<strike>{% endif %}
@@ -35,22 +45,21 @@
           </div>
         {% if player.alive %}
           <div class="player-item options-container">
-            {% if you.team == 'ambassador' and game.gamestate == 'choosing' and you.pk != player.pk %}
+            {% if game.gamestate == 'choosing' and you.host and you.pk != player.pk %}
               <a href='{% url 'choose_server' game.pk player.pk %}'>Choose as server</a>
             {% endif %}
-            {% if you.server and game.gamestate == 'serving' and not player.drink_set.all %}
+            {% if game.gamestate == 'serving' and you.server and not player.drink_set.all %}
               <a href='{% url 'serve_drink' game.pk player.pk %}'>Serve drink</a>
             {% endif %}
-            {% if you in player.wants_to_trade_with_me.all %}
+            {% if game.gamestate == 'trading' and you in player.wants_to_trade_with_me.all %}
               <span>Trade Offered</span>
-            {% endif %}
-            {% if game.gamestate == 'trading' and player != you and you not in player.wants_to_trade_with_me.all %}
+            {% comment %}
+            REMOVE if you've forgotten why this is commented out
+            {% elif game.gamestate == 'trading' or 'toast_proposed' and player != you and you not in player.wants_to_trade_with_me.all and player.can_trade %}
+            {% endcomment %}
+            {% elif can_trade %}
               <a class='offer-to-trade' href='{% url 'offer_trade' game.pk player.pk %}'>
-                {% if player in you.wants_to_trade_with_me.all %}
-                  <span class='wants-trade'>Wants Trade</span>
-                {% else %}
-                  <span class='trade'> Trade </span>
-                {% endif %}
+                <span class='wants-trade'>{{ can_trade }}</span>
               </a>
             {% endif %}
           </div>
@@ -58,12 +67,34 @@
       </li>
     {% endfor %}
   </ul>
-  {% if you.team != 'unassigned' %}
+  {% if you.team %}
     <div class="team-info-container">
-      <button class="team-box-toggle">Show / Hide team name</button>
+      <button class="team-box-toggle">Toggle Secret Info</button>
       <div class="team-box">
-        {{ you.team_display }}{% if you.team == 'traitor' %}:{% if you.has_poison %} You have poison{% else %} You have used your poison for this round{% endif %}{% endif %}
+        <div class="team-label">
+          Team: {{ you.team_display }}
+        </div>
+        <div class="poison-button">
+          {% if game.gamestate == 'trading' and you.has_poison %}
+            <a class='poison-drink-desktop-link' href='{% url 'poison_drink' game.pk %}'><button class='header-button'>
+              {% if you.has_poison %}Poison Your Drink{% endif %}
+            </button></a>
+          {% elif game.gamestate == 'trading' %}
+            You don't have any poison
+          {% endif %}
+        </div>
       </div>
     </div>
+  {% endif %}
+  {% include 'snippets/game-rules.html'%}
+  {% if game.list_global_trades %}
+  <div class='trade-list-container'>
+    Trades this round:
+    <ul class='trade-list'>
+      {% for trade in game.trade_record %}
+        <li>- {{ trade }}</li>
+      {% endfor %}
+    </ul>
+  </div>
   {% endif %}
 </div>

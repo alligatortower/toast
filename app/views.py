@@ -1,11 +1,12 @@
 from django.contrib import messages
+from django.db.models.loading import get_model
 from django.http import Http404
 from django.shortcuts import redirect, render, render_to_response, get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
-from .constants import TEAM_CHOICES, GAMESTATE_CHOICES
-from .forms import FindGameForm, PlayerNameForm, ServeDrinkForm
-from .models import Game, Player, Drink
+from app import constants as c
+from .forms import CreateGameForm, FindGameForm, PlayerNameForm, ServeDrinkForm
+from .models import Game, TeamGame, Player, Drink
 
 
 def error(request):
@@ -14,16 +15,52 @@ def error(request):
 
 
 def index(request):
-    loyalist_wins = Game.objects.filter(winners=TEAM_CHOICES.LOYALIST).count()
-    traitor_wins = Game.objects.filter(winners=TEAM_CHOICES.TRAITOR).count()
-    no_wins = Game.objects.filter(winners=None, gamestate=GAMESTATE_CHOICES.ENDED).count()
-    total_players = Player.objects.all().count()
-    return render(request, 'index.html', {'loyalist_wins': loyalist_wins,
-        'traitor_wins': traitor_wins,
-        'no_wins': no_wins,
-        'total_players': total_players,
-        'form': FindGameForm()
-    })
+    # loyalist_wins = Game.objects.filter(winners=c.TEAM_CHOICES.LOYALIST).count()
+    # traitor_wins = Game.objects.filter(winners=C.TEAM_CHOICES.TRAITOR).count()
+    # no_wins = Game.objects.filter(winners=None, gamestate=c.GAMESTATE_CHOICES.ENDED).count()
+    # total_players = Player.objects.all().count()
+    context = {'form': FindGameForm()
+        # 'loyalist_wins': loyalist_wins,
+        # 'traitor_wins': traitor_wins,
+        # 'no_wins': no_wins,
+        # 'total_players': total_players,
+    }
+    return render(request, 'index.html', context)
+
+
+def create_custom_game_view(request):
+    if request.method == 'GET':
+        form = CreateGameForm()
+    elif request.method == 'POST':
+        form = CreateGameForm(request.POST)
+        if form.is_valid():
+            session_key = request.session.session_key
+            game_type = get_model('app', form.cleaned_data['game_type'])
+            game = game_type.objects.create(
+                    renew_poison_each_round=form.cleaned_data['renew_poison'],
+                    reveal_teams_each_round=form.cleaned_data['reveal_team'],
+                    list_global_trades=form.cleaned_data['global_trades'],
+                    minimum_trades_per_round=form.cleaned_data['minimum_trades'],
+                    host_can_force_trades=form.cleaned_data['host_force'],
+                    no_kill_rounds_before_draw=form.cleaned_data['no_kill_rounds'],
+            )
+            game.create_player(session_key=session_key, game_owner=True)
+            return redirect('player_name', pk=game.pk)
+    return render(request, 'create_game.html', {'form': form})
+
+
+def create_team_game_view(request):
+    session_key = request.session.session_key
+    game = TeamGame.objects.create(
+            renew_poison_each_round=False,
+            reveal_teams_each_round=True,
+            list_global_trades=10,
+            minimum_trades_per_round=1,
+            host_can_force_trades=False,
+            no_kill_rounds_before_draw=2,
+    )
+    game.create_player(session_key=session_key, game_owner=True)
+    return redirect('player_name', pk=game.pk)
 
 
 def find_game_view(request):
@@ -43,18 +80,11 @@ def find_game_view(request):
 
 def continue_game_view(request):
     session_key = request.session.session_key
-    player = Player.objects.filter(session_key=session_key).exclude(game__gamestate=GAMESTATE_CHOICES.ENDED).first()
+    player = Player.objects.filter(session_key=session_key).exclude(game__gamestate=c.GAMESTATE_CHOICES.ENDED).first()
     if player:
         return redirect('game_detail', pk=player.game.pk)
     messages.error(request, "Sorry, we couldn't find any ongoing games that you're a player in")
     return redirect('index')
-
-
-def create_game_view(request):
-    game = Game.objects.create()
-    session_key = request.session.session_key
-    Player.objects.create(game=game, session_key=session_key, game_owner=True)
-    return redirect('player_name', pk=game.pk)
 
 
 def start_game_view(request, pk):
@@ -75,13 +105,13 @@ def start_game_view(request, pk):
 
 def end_game_view(request, pk):
     game = get_object_or_404(Game, pk=pk)
-    game.change_gamestate(GAMESTATE_CHOICES.ENDED)
+    game.change_gamestate(c.GAMESTATE_CHOICES.ENDED)
     return redirect('index')
 
 
 def game_detail_view(request, pk):
     game = get_object_or_404(Game, pk=pk)
-    if game.gamestate == GAMESTATE_CHOICES.ENDED:
+    if game.gamestate == c.GAMESTATE_CHOICES.ENDED:
         context = {'you': None, 'game': game}
         if request.is_ajax():
             return render_to_response('snippets/game-over-body.html', context)
@@ -91,9 +121,9 @@ def game_detail_view(request, pk):
         raise Http404(_('You need to enable cookies (or refresh, sometimes that works)'))
     player = Player.objects.filter(session_key=session_key, game=game).first()
     if not player:
-        if game.gamestate != GAMESTATE_CHOICES.UNSTARTED:
+        if not game.gamestate == c.GAMESTATE_CHOICES.UNSTARTED:
             raise Http404(_('This game has already started, join the next one'))
-        player = Player.objects.create(game=game, session_key=session_key)
+        player = game.create_player(session_key)
         return redirect('player_name', game.pk)
     if not player.alive:
         context = {'you': None, 'game': game}
@@ -126,26 +156,26 @@ def player_name_view(request, pk):
 
 def choose_server_view(request, game_pk, server_pk):
     game = get_object_or_404(Game, pk=game_pk)
-    if not game.gamestate == GAMESTATE_CHOICES.CHOOSING:
+    if not game.gamestate == c.GAMESTATE_CHOICES.CHOOSING:
         messages.error(request, 'You cannot choose the server, the game is not in choose state')
         return redirect('game_detail', pk=game.pk)
     session_key = request.session.session_key
     player = get_object_or_404(Player, alive=True, game=game, session_key=session_key)
-    if not player.team == TEAM_CHOICES.AMBASSADOR:
-        messages.error(request, 'Only the ambassador can choose the server')
+    if not player.host:
+        messages.error(request, 'Only the host can choose the server')
         return redirect('game_detail', pk=game.pk)
     server = get_object_or_404(Player, alive=True, game=game, pk=server_pk)
     if player == server:
-        messages.error(request, 'You, the ambassador, cannot serve drinks')
+        messages.error(request, 'You, the host, cannot serve drinks')
         return redirect('game_detail', pk=game.pk)
     server.make_server()
-    game.change_gamestate(GAMESTATE_CHOICES.SERVING)
+    game.change_gamestate(c.GAMESTATE_CHOICES.SERVING)
     return redirect('game_detail', pk=game.pk)
 
 
 def serve_drink_view(request, game_pk, recipient_pk):
     game = get_object_or_404(Game, pk=game_pk)
-    if not game.gamestate == GAMESTATE_CHOICES.SERVING:
+    if not game.gamestate == c.GAMESTATE_CHOICES.SERVING:
         messages.error(request, 'It is not time to serve the drinks')
         return redirect('game_detail', pk=game.pk)
     session_key = request.session.session_key
@@ -164,8 +194,8 @@ def serve_drink_view(request, game_pk, recipient_pk):
         form = ServeDrinkForm(request.POST)
         if form.is_valid():
             poison = form.cleaned_data['poisoned']
-            if poison and (not player.team == TEAM_CHOICES.TRAITOR or not player.has_poison):
-                messages.error(request, 'You either are not a traitor or do not have poison to use')
+            if poison and not player.has_poison:
+                messages.error(request, 'You do not have any poison to use so you cannot poison a drink')
                 return render(request, 'serve-drink.html', {'form': form, 'recipient': recipient, 'game_pk': game.pk})
             Drink.objects.create(poisoned=poison, owner=recipient, icon=form.cleaned_data['icon'])
             if poison:
@@ -176,52 +206,30 @@ def serve_drink_view(request, game_pk, recipient_pk):
                 if not player.drink_set.all():
                     still_need_drinks = True
             if not still_need_drinks:
-                game.change_gamestate(GAMESTATE_CHOICES.TRADING)
+                game.change_gamestate(c.GAMESTATE_CHOICES.TRADING)
+                for player in game.player_set.filter(server=True):
+                    player.server = False
+                    player.save()
     return redirect('game_detail', pk=game.pk)
 
 
 def offer_trade_view(request, game_pk, partner_pk):
     game = get_object_or_404(Game, pk=game_pk)
-    if not game.gamestate == GAMESTATE_CHOICES.TRADING:
+    if game.gamestate not in [c.GAMESTATE_CHOICES.TRADING, c.GAMESTATE_CHOICES.PROPOSED]:
         messages.error(request, 'You cannot offer a trade, the game is not in trade mode')
         return redirect('game_detail', pk=game.pk)
     session_key = request.session.session_key
-    player = get_object_or_404(Player, alive=True, game=game, session_key=session_key)
-    partner = get_object_or_404(Player, alive=True, game=game, pk=partner_pk)
-    if player.team == TEAM_CHOICES.AMBASSADOR or partner in player.wants_to_trade_with_me.all():
-        trade_complete = trade_drinks(player, partner)
-        if not trade_complete:
-            messages.error(request, 'The trade was not completed')
-            return redirect('game_detail', pk=game.pk)
-    else:
-        player.wants_to_trade.add(partner)
-        player.save()
+    offerer = get_object_or_404(Player, alive=True, game=game, session_key=session_key)
+    receiver = get_object_or_404(Player, alive=True, game=game, pk=partner_pk)
+    message = game.facilitate_trade(offerer, receiver)
+    if message:
+        messages.error(request, message)
     return redirect('game_detail', pk=game.pk)
-
-
-def trade_drinks(player, partner):
-    partner_drink = partner.drink_set.all().first()
-    your_drink = player.drink_set.all().first()
-    if not partner_drink and your_drink:
-        return False
-    partner_drink.owner = player
-    your_drink.owner = partner
-    your_drink.save()
-    partner_drink.save()
-    partner.wants_to_trade.clear()
-    player.wants_to_trade.clear()
-    partner.wants_to_trade_with_me.clear()
-    player.wants_to_trade_with_me.clear()
-    player.last_trade = str(partner)
-    partner.last_trade = str(player)
-    player.save()
-    partner.save()
-    return True
 
 
 def poison_drink_view(request, pk):
     game = get_object_or_404(Game, pk=pk)
-    if not game.gamestate == GAMESTATE_CHOICES.TRADING:
+    if not game.gamestate == c.GAMESTATE_CHOICES.TRADING:
         messages.error(request, 'You can only poison drinks after everyone has been served, while waiting for the toast')
         return redirect('game_detail', pk=game.pk)
     session_key = request.session.session_key
@@ -237,15 +245,50 @@ def propose_toast_view(request, pk):
     game = get_object_or_404(Game, pk=pk)
     session_key = request.session.session_key
     player = get_object_or_404(Player, game=game, session_key=session_key)
-    if not player.team == TEAM_CHOICES.AMBASSADOR:
-        messages.error(request, 'You cannot propose a toast, you are not the ambassador')
+    if not player.host:
+        messages.error(request, 'You cannot propose a toast, you are not the host')
         return redirect('game_detail', pk=game.pk)
-    if not game.gamestate == GAMESTATE_CHOICES.TRADING:
+    if not game.gamestate == c.GAMESTATE_CHOICES.TRADING:
         messages.error(request, 'It is not appropriate to propose a toast right now')
         return redirect('game_detail', pk=game.pk)
+    message = game.toast_proposed(player)
+    if message:
+        messages.error(request, message)
+    return redirect('game_detail', pk=game.pk)
+
+
+def raise_drink_view(request, pk):
+    game = get_object_or_404(Game, pk=pk)
+    session_key = request.session.session_key
+    player = get_object_or_404(Player, game=game, session_key=session_key)
+    if not game.gamestate == c.GAMESTATE_CHOICES.PROPOSED:
+        messages.error(request, 'Why are you raising your drink?')
+        return redirect('game_detail', pk=game.pk)
+    if player.host:
+        messages.error(request, 'You are the host')
+        return redirect('game_detail', pk=game.pk)
+    if player.drink_raised:
+        messages.error(request, 'Your drink is already raised')
+        return redirect('game_detail', pk=game.pk)
+    player.raise_drink()
+    all_drinks_raised = True
     for player in game.player_set.filter(alive=True):
-        player.drink()
-        player.wants_to_trade.clear()
-        player.wants_to_trade_with_me.clear()
+        if not player.drink_raised:
+            all_drinks_raised = False
+    if all_drinks_raised:
+        game.change_gamestate(c.GAMESTATE_CHOICES.TOAST)
+    return redirect('game_detail', pk=game.pk)
+
+
+def toast_view(request, pk):
+    game = get_object_or_404(Game, pk=pk)
+    session_key = request.session.session_key
+    player = get_object_or_404(Player, game=game, session_key=session_key)
+    if not game.gamestate == c.GAMESTATE_CHOICES.TOAST:
+        messages.error(request, 'Now is not the time to toast')
+        return redirect('game_detail', pk=game.pk)
+    if not player.host:
+        messages.error(request, 'Only the host can toast')
+        return redirect('game_detail', pk=game.pk)
     game.start_next_round()
     return redirect('game_detail', pk=game.pk)

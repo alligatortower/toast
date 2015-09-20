@@ -13,30 +13,53 @@ Toast: Party Assassin
 {% block body_media %}
 <script>
   window.onload = function() {
+
     refresh = function() {
         $.ajax({
           url: "{% url 'game_detail' game.pk %}",
           success: function(data) {
             $('.game-detail-container').html(data);
             set_jquery_binds();
+            setTeamBoxVisibility();
           }
         });
     };
+
     {% if successfully_poisoned %}
       $('.your-drink-icon').addClass('poisoned')
       setTimeout(function(){
         $('.your-drink-icon').removeClass('poisoned')
       }, 1000);
     {% endif %}
-
+    setTeamBoxVisibility = function() {
+      if (typeof localStorage['teamBox'] == 'undefined') {
+        localStorage['teamBox'] = false;
+      }
+      showTeamBox = (localStorage['teamBox'] == 'true');
+      if (showTeamBox) {
+        $('.team-box').show();
+      }
+      else {
+        $('.team-box').hide();
+      }
+    }
     set_jquery_binds = function() {
       $('.team-box-toggle').click(function() {
-        $('.team-box').toggle();
+        showTeamBox = (localStorage['teamBox'] == 'true');
+        if (showTeamBox) {
+          $('.team-box').hide();
+          localStorage['teamBox'] = false;
+        }
+        else {
+          $('.team-box').show();
+          localStorage['teamBox'] = true;
+        }
+        showTeamBox = (localStorage['teamBox'] == 'true');
       });
     };
+
     setInterval("refresh()", 5000);
     set_jquery_binds();
-
   };
 </script>
 {% endblock body_media %}

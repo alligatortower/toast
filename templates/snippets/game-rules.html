@@ -1,0 +1,24 @@
+
+<div class='rule-list'>
+  {% if game.no_kill_rounds_before_draw %}
+    <p>
+      Rounds without death: {{ game.rounds_without_kill }} / {{ game.no_kill_rounds_before_draw }}
+    </p>
+  {% endif %}
+  {% if game.minimum_trades_per_round %}
+    <p>
+      Trades needed before toast: {{ game.traderecord_set.count }} / {{ game.minimum_trades_per_round }}
+    </p>
+  {% endif %}
+    <p>
+      Poison is given {% if game.renew_poison_each_round %} each round{% else %} once{% endif %}
+    </p>
+  {% if game.reveal_teams_each_round %}
+  <p>
+    The host's team is revealed after each round
+  </p>
+  {% endif %}
+  <p>
+    Host {% if game.host_can_force_trades %}can{% else %}cannot{% endif %} force trades
+  </p>
+</div>
