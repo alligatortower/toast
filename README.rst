@@ -26,6 +26,7 @@ normal people feel fine until their third dose of poison
 the king is frail and dies after the second
 
 Win conditions
+
 * king: wins after X toasts (player count based?). drinking his favorite drink makes the toast count for 2.
 * assassin: wins if the king dies. However, if they drink their favorite drink three times they blow their cover and lose
 * other: drink your favorite drink 3 times
