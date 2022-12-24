@@ -1,37 +1,33 @@
-Instructions
+# ABANDONED
 ============
-Follow the steps below to start a new project using this django template::
 
-    Clone  this repository into directory toast
-    cd into directory
-    $ chmod +x start.sh
-    $ ./start.sh
-    $ workon toast
-    $ ./manage.py runserver
+This is old and obviously abandoned. It was a game Trevor Mormon and I were designing. We both lost interest. If it's ever revived we'd almost certainly start from scratch. The code is not worth saving.
 
-Deployment
+# FUTURE
 ==========
-Projects created using this template are meant to be deployed on heroku
+That said. Sometimes I think about it. The premise is still valid I think. Here are some ideas I'm writing down so I can get them out of my head so I can go work on other things.
 
-Create a heroku application and push the code there. You will need to set:
+At least 4 or 5 player I think.
 
-- The DJANGO_SETTINGS_MODULE variable to either "{{project_name}}.settings.heroku" or heroku_staging
-- The aws settings in AWS_SECRET_ACCESS_KEY, AWS_STORAGE_BUCKET_NAME, AWS_ACCESS_KEY_ID
-- and finally the SECRET_ACCESS_KEY which can be generated via ```python -c 'import random; print "".join([random.choice("abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)") for i in range(50)])'```
+one is the king
+one is the assassin
 
-You can set the variables using the heroku command, the config:set argument and the --app flag:
-```heroku config:set DJANGO_SETTINGS_MODULE={{project_name}}.settings.heroku-staging```
-or
-```heroku config:set SECRET_KEY=`python -c 'import random; print "".join([random.choice("abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)") for i in range(50)])'````
+there are some assortment of drink types, maybe based on player count
 
-Use the Mandrill addon to setup email -
-```$ heroku addons:add mandrill:starter```
+each player has a subset of drinks they cannot drink. and one drink type that is their favorite. These subsets are public knowledge.
 
-Make sure to add psql backup
-```$ heroku addons:add pgbackups```
+the exceptions:
 
-Add in the newrelic addon:
-```$ heroku addons:add newrelic```
+* the king who can drink anything.
+* the assassin cannot win no matter how many of their favorite drinks they drink.
 
-After pushing the code, you'll need to syncdb and run the initial migrations:
-```$ heroku run python manage.py syncdb --migrate```
+the assassin can poison a drink once per round.
+normal people feel fine until their third dose of poison
+the king is frail and dies after the second
+
+Win conditions
+* king: wins after X toasts (player count based?). drinking his favorite drink makes the toast count for 2.
+* assassin: wins if the king dies. However, if they drink their favorite drink three times they blow their cover and lose
+* other: drink your favorite drink 3 times
+
+multiple people can win, but if at least one person wins the game is over after that round
