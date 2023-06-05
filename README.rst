@@ -1,7 +1,7 @@
 # ABANDONED
 ============
 
-This is old and obviously abandoned. It was a game Trevor Mormon and I were designing. We both lost interest. If it's ever revived we'd almost certainly start from scratch. The code is not worth saving.
+This is old and obviously abandoned. It was a game Trevor Moormon and I were designing. We both lost interest. If it's ever revived we'd almost certainly start from scratch. The code is not worth saving.
 
 # FUTURE
 ==========
